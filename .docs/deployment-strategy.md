@@ -52,7 +52,7 @@ A distributed deployment using **vps2** for the application containers and **vps
 │  2 cores, 8GB RAM, 100GB            │       │  8 cores, 32GB RAM, 400GB           │
 │                                     │       │                                     │
 │  ┌──────────┐                       │       │  ┌─────────────────────────────┐   │
-│  │  Caddy   │◄── photos.haugaard.dev│       │  │  Supabase (PostgreSQL)      │   │
+│  │  Caddy   │◄── kline-martin-photos.com       │  │  Supabase (PostgreSQL)      │   │
 │  │ (proxy)  │                       │       │  │  + pgvector 0.8.0           │   │
 │  └────┬─────┘                       │       │  │  Port 5432                  │   │
 │       │                             │       │  └──────────────▲──────────────┘   │
@@ -312,7 +312,7 @@ These environment variables will be configured on **vps2** in the app's `.env` f
 
 **DNS & Storage:**
 
-- [ ] Add DNS record: `photos.haugaard.dev` → `31.97.131.163` (vps2 IP)
+- [ ] Add DNS record: `kline-martin-photos.com` → `31.97.131.163` (vps2 IP) via Cloudflare
 - [ ] Create Backblaze B2 bucket and application key
 
 ---

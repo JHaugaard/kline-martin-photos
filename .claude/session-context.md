@@ -2,23 +2,37 @@
 
 ## Current Status
 
-**Phase:** Deployment Strategy (Phase 2) - COMPLETE
+**Phase:** Project Foundation (Phase 3) - COMPLETE
 **Mode:** BALANCED
+**Next:** Step 1 of Guided Setup (Next.js initialization)
 
 ## What We've Done This Session
 
-1. Invoked `deployment-advisor` skill
-2. Evaluated hosting options: Cloudflare Pages, Fly.io, Hostinger VPS
-3. Confirmed Cloudflare Pages insufficient (no container runtime for Python embedding service)
-4. Compared Fly.io (~$30/month) vs VPS Docker ($0 marginal)
-5. Selected **Two-VPS Architecture** as deployment target
-6. Verified pgvector 0.8.0 is installed and enabled in self-hosted Supabase
-7. Confirmed Ollama has nomic-embed-text model installed
-8. Clarified two-VPS setup: vps2 (app) + vps8 (backend services)
-9. Determined cross-VPS communication: direct PostgreSQL + HTTPS for Ollama
-10. Created deployment strategy document
-11. **Refined deployment strategy** - removed implementation details (belong in deploy-guide), kept strategy decisions only
-12. **Renamed "Server 2" to "vps2"** for consistent naming across infrastructure
+### Phase 3: Project Spinup (COMPLETE)
+
+1. Invoked `project-spinup` skill with Guided Setup approach
+2. Created comprehensive CLAUDE.md with 12-step guided setup
+3. Created docker-compose.yml for local development (PostgreSQL + embedding service)
+4. Set up directory structure: src/, tests/, embedding-service/
+5. Created .env.example with all required environment variables
+6. Created .gitignore for Next.js + Python
+7. Updated README.md with project overview
+8. Created scripts/init-db.sql for database initialization with pgvector
+9. Created .docs/project-foundation-complete.md handoff marker
+
+### Updates Made
+
+1. **Production domain:** Changed from `photos.haugaard.dev` to `kline-martin-photos.com`
+2. **Local sample data:** Documented 10 test images in `kline-martin-photos/` subdirectory
+3. **Git workflow:** Simplified to work on `main` during V0.1, branch later
+4. **Date sorting:** Noted as not meaningful (scanned images share similar dates)
+
+### Sample Data Available
+
+10 JPEGs + JSON metadata files in `kline-martin-photos/` subdirectory:
+- Rich metadata: keywords, dates, dimensions, SmugMug origins
+- Example keywords: `["Martin", "Portrait", "Jack"]`
+- Enables offline development without B2 API calls
 
 ## Two-VPS Architecture
 
@@ -27,93 +41,86 @@
 | **vps2** | App VPS | 2 cores, 8GB RAM, 100GB | Next.js, Python Embedding, Caddy |
 | **vps8** | Homelab | 8 cores, 32GB RAM, 400GB | Supabase, Ollama, existing infra |
 
-### Cross-VPS Communication
+### Service Endpoints
 
-- **PostgreSQL:** Direct TCP connection to vps8:5432 (firewall rule required)
-- **Ollama:** HTTPS via `https://ollama.haugaard.dev` (already configured)
+| Service | URL/Connection |
+|---------|----------------|
+| Supabase API | https://supabase.haugaard.dev |
+| Supabase DB | postgresql://postgres:***@72.60.27.146:5432/kline_martin_photos |
+| Ollama | https://ollama.haugaard.dev |
+| Backblaze B2 | s3.us-west-004.backblazeb2.com |
+| App (production) | https://kline-martin-photos.com |
 
-### Firewall Rule Required (on vps8)
-
-```bash
-sudo ufw allow from 31.97.131.163 to any port 5432 comment "vps2 PostgreSQL access"
-```
-
-## Deployment Decision Summary
-
-| Aspect | Decision |
-|--------|----------|
-| App Server | vps2 (srv993275.hstgr.cloud / 31.97.131.163) |
-| Backend Server | vps8 (72.60.27.146) |
-| Containerization | Docker + Docker Compose (on vps2) |
-| Database | Supabase PostgreSQL on vps8 (pgvector 0.8.0) |
-| Database Access | Direct PostgreSQL (port 5432) |
-| Text Embeddings | Ollama on vps8 via HTTPS |
-| Reverse Proxy | Caddy on vps2 |
-| Image Storage | Backblaze B2 |
-| Monthly Cost | ~$0 (marginal) |
-
-## Infrastructure Verification
-
-- [x] pgvector 0.8.0 enabled in Supabase (vps8)
-- [x] Ollama has nomic-embed-text model (vps8)
-- [x] vps2 hardened via vps-ready skill
-- [x] Caddy available on both VPSes
-- [x] Backblaze B2 ready for image storage
-
-## Tech Stack Summary (from Phase 1)
+## Tech Stack Summary
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 15 (App Router) |
-| Styling | Tailwind CSS |
+| Frontend | Next.js 15 (App Router), React 19 |
+| Styling | Tailwind CSS 4.x (understated aesthetic) |
 | Backend API | Next.js API Routes |
 | Embedding Service | Python + FastAPI + SigLIP ViT-B/16 |
-| Database | PostgreSQL + pgvector |
+| Database | PostgreSQL + pgvector 0.8.0 |
 | Auth | Supabase Auth (magic links) |
 | Vector Search | pgvector (native PostgreSQL) |
 | Text Embeddings | Ollama + nomic-embed-text |
 | Image Storage | Backblaze B2 |
 
+## Files Created This Session
+
+| File | Purpose |
+|------|---------|
+| CLAUDE.md | Comprehensive project context + 12-step guided setup |
+| docker-compose.yml | PostgreSQL + embedding service for local dev |
+| .env.example | Environment variable template |
+| .gitignore | Next.js + Python ignore patterns |
+| README.md | Project overview |
+| scripts/init-db.sql | Database schema with pgvector |
+| .docs/project-foundation-complete.md | Handoff marker |
+
+## 12-Step Guided Setup (Ready to Start)
+
+1. **Initialize Next.js Structure** ← NEXT
+2. Configure Supabase Client
+3. Implement Magic Link Authentication
+4. Build Gallery Grid Component
+5. Add Lightbox Viewer
+6. Connect Backblaze B2 Storage
+7. Implement Search Foundation
+8. Set Up Python Embedding Service
+9. Add Semantic Search
+10. Implement Share Links
+11. Add Admin Keyword Management
+12. Testing Setup
+
+## Key Decisions
+
+- **Work on `main`** during V0.1 (no branches until baseline is working)
+- **Understated UI** - clean, minimal, no visual clutter
+- **Local sample data first** - build with local files, add B2 integration later
+- **Date sorting not meaningful** - rely on keywords and semantic search
+
 ## Key Files
 
-- [CLAUDE.md](../CLAUDE.md) - Project configuration
+- [CLAUDE.md](../CLAUDE.md) - Project configuration + Guided Setup steps
 - [.docs/PROJECT-MODE.md](../.docs/PROJECT-MODE.md) - Workflow mode (BALANCED)
 - [.docs/brief-kline-martin-photos.md](../.docs/brief-kline-martin-photos.md) - Project brief
 - [.docs/tech-stack-decision-v2.md](../.docs/tech-stack-decision-v2.md) - Tech stack decision
-- [.docs/deployment-strategy.md](../.docs/deployment-strategy.md) - Deployment strategy (strategy-focused, implementation in deploy-guide)
-- [docs/image-embedding-stack.md](../docs/image-embedding-stack.md) - Embedding research
-- [docs/image-semantic-search-pipeline.md](../docs/image-semantic-search-pipeline.md) - Pipeline spec
-
-## Concepts Explained This Session
-
-- **ML (Machine Learning):** Python libraries (PyTorch, transformers) for running trained models like SigLIP
-- **Why Python for embeddings:** ML research community standardized on Python; best vision models released as Python packages
-- **Shared vs. app-specific services:** Embedding service and database can be shared; Next.js apps are per-project
-
-## Workflow Refinement Discussion
-
-User identified overlap between deployment-strategy.md and deploy-guide skill:
-- **deployment-advisor** should focus on strategy (decisions, architecture, rationale)
-- **deploy-guide** should handle implementation (commands, configuration, verification)
-
-Revised deployment-strategy.md to remove step-by-step commands, keeping only strategic decisions. This clarifies skill boundaries in the workflow.
-
-## Next Steps
-
-1. User confirms BALANCED mode checkpoint items
-2. Invoke `project-spinup` skill to generate project foundation
-3. Build features
-4. When ready: Invoke `deploy-guide` skill for deployment
-5. Optional: Invoke `ci-cd-implement` for automation
+- [.docs/deployment-strategy.md](../.docs/deployment-strategy.md) - Deployment strategy
+- [.docs/project-foundation-complete.md](../.docs/project-foundation-complete.md) - Phase 3 handoff
 
 ## Workflow Progress
 
 ```text
 [x] Phase 0: Project Brief (project-brief-writer)
 [x] Phase 1: Tech Stack Advisor (complete)
-[x] Phase 2: Deployment Strategy (CURRENT - complete)
-[ ] Phase 3: Project Foundation (project-spinup) <- NEXT
+[x] Phase 2: Deployment Strategy (complete)
+[x] Phase 3: Project Foundation (project-spinup) - COMPLETE
+[ ] Step 1-12: Guided Setup <- READY TO START
 [ ] Phase 4: Test Strategy (test-orchestrator) - optional
 [ ] Phase 5: Deployment (deploy-guide)
 [ ] Phase 6: CI/CD (ci-cd-implement) - optional
 ```
+
+## Next Action
+
+User says: **"Let's start Step 1"** to initialize Next.js structure

@@ -1,0 +1,66 @@
+# Docker Compose for Kline-Martin Photos - Local Development
+#
+# Services:
+#   - postgres: PostgreSQL 15 with pgvector extension (local dev database)
+#   - embedding-service: Python FastAPI service with SigLIP model
+#
+# Usage:
+#   docker compose up -d          # Start all services
+#   docker compose logs -f        # View logs
+#   docker compose down           # Stop services
+#   docker compose up -d --build  # Rebuild after changes
+
+services:
+  # PostgreSQL with pgvector for local development
+  # Production uses Supabase on vps8
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: kmp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kline_martin_photos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Python embedding service with SigLIP
+  # Generates 512-dim image embeddings
+  embedding-service:
+    build:
+      context: ./embedding-service
+      dockerfile: Dockerfile
+    container_name: kmp-embedding
+    restart: unless-stopped
+    environment:
+      - MODEL_NAME=google/siglip-base-patch16-224
+      - HOST=0.0.0.0
+      - PORT=8001
+    ports:
+      - "8001:8001"
+    volumes:
+      - model_cache:/root/.cache/huggingface
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+volumes:
+  postgres_data:
+    name: kmp-postgres-data
+  model_cache:
+    name: kmp-model-cache
