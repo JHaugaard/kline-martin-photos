@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
         hostname: '*.backblazeb2.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
     ],
     // Image formats to optimize
     formats: ['image/avif', 'image/webp'],

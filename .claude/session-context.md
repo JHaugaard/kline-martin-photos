@@ -2,188 +2,127 @@
 
 ## Current Status
 
-**Phase:** Guided Setup - Steps 2, 3, 4 COMPLETE
+**Phase:** Guided Setup - Steps 2, 3, 4, 5 COMPLETE
 **Mode:** BALANCED
-**Next:** Step 5 (Add Lightbox Viewer)
+**Next:** Step 6 (Connect Backblaze B2 Storage)
 
 ## What We've Done This Session
 
-### Step 2: Configure Supabase Client (COMPLETE)
+### Step 5: Add Lightbox Viewer (COMPLETE)
 
-Created Supabase client setup with both server and browser clients:
+Complete lightbox component with keyboard navigation and swipe support:
 
-1. **Browser Client** (`src/lib/supabase/client.ts`)
-   - Uses public ANON_KEY
-   - Operates under Row-Level Security (RLS)
-   - For Client Components and interactive features
+1. **Lightbox Hook** (`src/hooks/useLightbox.ts`)
+   - Manages open/close state and current image index
+   - Navigation methods: open, close, next, previous
+   - Tracks canGoNext and canGoPrevious states
+   - Returns currentImage for display
 
-2. **Server Client** (`src/lib/supabase/server.ts`)
-   - Uses secret SERVICE_ROLE_KEY
-   - Can bypass RLS (admin power)
-   - For Server Components and API Routes
+2. **Keyboard Navigation Hook** (`src/hooks/useKeyboardNavigation.ts`)
+   - Arrow keys for next/previous navigation
+   - Escape key to close lightbox
+   - Only active when lightbox is open
+   - Proper cleanup on unmount
 
-3. **Middleware** (`src/lib/supabase/middleware.ts`)
-   - Handles automatic session token refresh
-   - Keeps cookies in sync between server/browser
-   - Critical for magic link authentication
+3. **Lightbox Component** (`src/components/gallery/Lightbox.tsx`)
+   - Full-screen overlay with dark backdrop
+   - Centered image with max-width/height constraints
+   - Navigation arrows (left/right) with hover states
+   - Close button (X) in top-right corner
+   - Touch/swipe support for mobile devices
+   - Keyboard navigation integration
+   - Click outside to close
 
-4. **TypeScript Types** (`src/types/database.ts`)
-   - Auto-generated style type definitions
-   - Full type safety for database operations
-   - Includes schema: images, share_links, profiles
+4. **Gallery Page Integration** (`src/app/(gallery)/gallery/page.tsx`)
+   - Added useLightbox hook
+   - Images open in lightbox when clicked
+   - Navigation between images works correctly
 
-5. **Documentation** (`docs/supabase-client-setup.md`)
-   - Detailed explanations of both clients
-   - Decision tree for choosing right client
-   - RLS overview and security considerations
+### Authentication Debugging & Fixes (COMPLETE)
 
-### Step 3: Implement Magic Link Authentication (COMPLETE)
+Resolved multiple issues with self-hosted Supabase authentication:
 
-Complete magic link auth flow with 7-step process:
+1. **Database Connection Fix**
+   - Changed DATABASE_URL from `/kline_martin_photos` to `/postgres`
+   - Self-hosted Supabase GoTrue requires the shared `postgres` database
+   - Updated `.env.local` with correct connection string
 
-1. **Middleware** (`src/middleware.ts`)
-   - Route protection for /gallery, /admin, /api routes
-   - Session token refresh on every request
-   - Keeps users logged in seamlessly
+2. **GoTrue NULL Value Fix**
+   - Error: `sql: Scan error on column index 8, name "email_change": converting NULL to string is unsupported`
+   - Root cause: NULL values in auth.users columns incompatible with GoTrue
+   - Fixed with SQL updates on vps8:
+     ```sql
+     UPDATE auth.users SET email_change = '' WHERE email_change IS NULL;
+     UPDATE auth.users SET email_change_token_new = '' WHERE email_change_token_new IS NULL;
+     UPDATE auth.users SET recovery_token = '' WHERE recovery_token IS NULL;
+     ```
 
-2. **Auth Callback** (`src/app/(auth)/auth/callback/route.ts`)
-   - Exchanges magic link code for session
-   - One-time-use token validation
-   - Redirects to /gallery on success or /login on error
+3. **SMTP Setup with Resend**
+   - GoTrue was configured to use non-existent `supabase-mail` container
+   - Set up Resend account (resend.com)
+   - Added DNS records for domain verification (haugaard.dev via Cloudflare)
+   - Created API key for SMTP authentication
+   - Updated Supabase .env on vps8:
+     ```
+     SMTP_HOST=smtp.resend.com
+     SMTP_PORT=465
+     SMTP_USER=resend
+     SMTP_PASS=re_xxxxxxxx
+     SMTP_SENDER_EMAIL=noreply@haugaard.dev
+     ```
+   - Restarted GoTrue container: `docker compose restart supabase-auth`
 
-3. **Auth Utilities** (`src/lib/auth/index.ts`)
-   - `getCurrentUser()` - Get logged-in user
-   - `requireAuth()` - Enforce authentication
-   - `signOut()` - Clear session and redirect
-   - `getUserProfile()` - Get user role (viewer/admin)
+4. **Magic Link Now Working**
+   - Users can enter email and receive magic link
+   - Link contains OTP code for authentication
 
-4. **Login Form** (`src/components/auth/LoginForm.tsx`)
-   - Email input with magic link request
-   - State management (idle → loading → success/error)
-   - Supabase Auth integration via `signInWithOtp()`
+### Next.js Image Configuration Fix
 
-5. **User Profile Display** (`src/components/auth/UserProfile.tsx`)
-   - Shows logged-in user's email
-   - Displays role (Admin 👤 or Viewer 👁)
-   - Sign out button integration
+- Added `images.unsplash.com` to `next.config.ts` remotePatterns
+- Required for placeholder images from Unsplash during development
 
-6. **Sign Out Button** (`src/components/auth/SignOutButton.tsx`)
-   - Server Action form submission
-   - Clears session and redirects to /login
+### Known Issue: Auth Redirect
 
-7. **Updated Login Page** (`src/app/(auth)/login/page.tsx`)
-   - Integrates LoginForm component
-   - Shows magic link process info
+**Issue:** Magic links redirect to Supabase dashboard instead of the app
 
-8. **Documentation** (`docs/magic-link-auth-guide.md`)
-   - 7-step authentication flow diagram
-   - Security considerations and best practices
-   - Testing instructions and troubleshooting
+**Fix Required:** On vps8, update Supabase .env:
+```
+SITE_URL=http://localhost:3000
+ADDITIONAL_REDIRECT_URLS=http://localhost:3000/auth/callback
+```
+Then restart GoTrue: `docker compose restart supabase-auth`
+
+## Previous Steps (Completed Earlier)
 
 ### Step 4: Build Gallery Grid Component (COMPLETE)
 
-Complete gallery grid system with responsive layout and pagination:
+- ImageCard with hover effects and placeholder support
+- ImageGrid with responsive columns (2 → 3 → 4 → 5)
+- PaginationControls with page navigation
+- useGalleryPagination hook for state management
+- Placeholder generator for 100 development images
 
-1. **Image Card** (`src/components/gallery/ImageCard.tsx`)
-   - Square aspect ratio with responsive images
-   - Hover effects: overlay + 5% scale
-   - Title overlay on hover
-   - Placeholder icon for missing images
-   - Keyboard accessible
+### Step 3: Implement Magic Link Authentication (COMPLETE)
 
-2. **Image Grid** (`src/components/gallery/ImageGrid.tsx`)
-   - Responsive columns: 2 → 3 → 4 → 5
-   - Adaptive gap: 8px (mobile) → 12-16px (desktop)
-   - Loading skeleton states
-   - Empty state messaging
-   - Minimal, clean design
+- Route protection middleware
+- Auth callback handler
+- Auth utility functions (getCurrentUser, requireAuth, signOut, getUserProfile)
+- LoginForm component
+- UserProfile and SignOutButton components
 
-3. **Pagination Hook** (`src/hooks/useGalleryPagination.ts`)
-   - Manages pagination state (current page, total pages)
-   - Provides navigation methods (nextPage, previousPage, etc.)
-   - Calculates start/end indexes for array slicing
-   - Reusable for any paginated list
+### Step 2: Configure Supabase Client (COMPLETE)
 
-4. **Pagination Controls** (`src/components/gallery/PaginationControls.tsx`)
-   - Previous/Next buttons with disabled states
-   - Page indicator (e.g., "Page 2 of 5")
-   - LoadMoreButton alternative for infinite scroll
-   - Subtle, unobtrusive design
-
-5. **Placeholder Generator** (`src/lib/gallery/placeholder.ts`)
-   - Generates 100 realistic development images
-   - Uses Unsplash for real image URLs
-   - Includes realistic metadata (titles, keywords, dates)
-   - Easy to replace with real B2 images later
-
-6. **Updated Types** (`src/types/index.ts`)
-   - Added optional `imageUrl` field to ImageData
-   - Supports both placeholder and real images
-
-7. **Gallery Page** (`src/app/(gallery)/gallery/page.tsx`)
-   - Loads placeholder images on mount
-   - Manages pagination and image slicing
-   - Shows 20 images per page
-   - Ready to replace with B2 images
-   - Handles loading and pagination states
-
-8. **Documentation** (`docs/gallery-grid-guide.md`)
-   - Complete architecture overview
-   - Component-by-component explanation
-   - Design philosophy and decisions
-   - Responsive behavior breakdown
-   - Troubleshooting and future enhancements
+- Browser client (client.ts)
+- Server client (server.ts)
+- Middleware helper (middleware.ts)
+- TypeScript database types
 
 ### Step 1: Initialize Next.js Structure (COMPLETE)
 
-Created the complete Next.js 15 project with:
-
-1. **Configuration Files**
-   - `package.json` - Next.js 15, React 19, Supabase client, AWS SDK, Tailwind v4, Vitest
-   - `tsconfig.json` - TypeScript strict mode, path alias `@/*`
-   - `next.config.ts` - Image optimization for B2, security headers, typed routes
-   - `postcss.config.js` - Tailwind CSS v4 with `@tailwindcss/postcss`
-   - `eslint.config.mjs` - ESLint 9 flat config with Next.js rules
-   - `.prettierrc` - No semicolons, single quotes, Tailwind plugin
-
-2. **App Router Structure** (`src/app/`)
-   - `layout.tsx` - Root layout with metadata
-   - `page.tsx` - Landing page (/)
-   - `(auth)/` - Route group for authentication
-     - `layout.tsx` - Centered auth layout
-     - `login/page.tsx` - Login page (/login)
-     - `auth/callback/route.ts` - Magic link callback
-   - `(gallery)/` - Route group for protected pages
-     - `layout.tsx` - Gallery layout with header
-     - `gallery/page.tsx` - Main gallery (/gallery)
-   - `share/[token]/page.tsx` - Dynamic share link route
-   - `api/health/route.ts` - Health check endpoint
-
-3. **Components** (`src/components/`)
-   - `ui/` - Button, Input, Spinner (base components)
-   - `gallery/` - Placeholder for gallery components
-   - `auth/` - Placeholder for auth components
-   - `admin/` - Placeholder for admin components
-   - `shared/` - Placeholder for shared components
-
-4. **Library** (`src/lib/`)
-   - `utils.ts` - `cn()` utility for Tailwind class merging
-   - `supabase/` - Placeholder for Supabase clients
-   - `b2/` - Placeholder for B2 client
-   - `embeddings/` - Placeholder for embedding service
-
-5. **Types** (`src/types/index.ts`)
-   - ImageData, SearchResult, ShareLink, UserProfile, ApiResponse
-
-6. **Styles** (`src/styles/globals.css`)
-   - Tailwind v4 with custom theme, animations, utilities
-
-### Verification
-
-- `npm install` - 686 packages installed
-- `npm run type-check` - Passes
-- `npm run dev` - Server starts at http://localhost:3000
-- `/api/health` - Returns JSON health check
+- Full Next.js 15 project with App Router
+- Tailwind CSS 4.x configuration
+- TypeScript strict mode
+- ESLint and Prettier setup
 
 ## Two-VPS Architecture
 
@@ -197,7 +136,7 @@ Created the complete Next.js 15 project with:
 | Service | URL/Connection |
 |---------|----------------|
 | Supabase API | https://supabase.haugaard.dev |
-| Supabase DB | postgresql://postgres:***@72.60.27.146:5432/kline_martin_photos |
+| Supabase DB | postgresql://postgres:***@72.60.27.146:5432/postgres |
 | Ollama | https://ollama.haugaard.dev |
 | Backblaze B2 | s3.us-west-004.backblazeb2.com |
 | App (production) | https://kline-martin-photos.com |
@@ -215,22 +154,7 @@ Created the complete Next.js 15 project with:
 | Vector Search | pgvector (native PostgreSQL) |
 | Text Embeddings | Ollama + nomic-embed-text |
 | Image Storage | Backblaze B2 |
-
-## Files Created This Session
-
-| File | Purpose |
-|------|---------|
-| `package.json` | Dependencies + npm scripts |
-| `tsconfig.json` | TypeScript strict mode config |
-| `next.config.ts` | Next.js configuration |
-| `postcss.config.js` | Tailwind CSS v4 PostCSS |
-| `eslint.config.mjs` | ESLint 9 config |
-| `.prettierrc` / `.prettierignore` | Prettier config |
-| `src/app/**` | App Router pages and layouts |
-| `src/components/ui/**` | Base UI components |
-| `src/lib/utils.ts` | Utility functions |
-| `src/types/index.ts` | TypeScript type definitions |
-| `src/styles/globals.css` | Global styles + Tailwind theme |
+| Email | Resend SMTP |
 
 ## 12-Step Guided Setup Progress
 
@@ -238,8 +162,8 @@ Created the complete Next.js 15 project with:
 2. [x] **Configure Supabase Client** - COMPLETE
 3. [x] **Implement Magic Link Authentication** - COMPLETE
 4. [x] **Build Gallery Grid Component** - COMPLETE
-5. [ ] **Add Lightbox Viewer** <- NEXT
-6. [ ] Connect Backblaze B2 Storage
+5. [x] **Add Lightbox Viewer** - COMPLETE
+6. [ ] **Connect Backblaze B2 Storage** <- NEXT
 7. [ ] Implement Search Foundation
 8. [ ] Set Up Python Embedding Service
 9. [ ] Add Semantic Search
@@ -247,12 +171,31 @@ Created the complete Next.js 15 project with:
 11. [ ] Add Admin Keyword Management
 12. [ ] Testing Setup
 
+## Files Created/Modified This Session
+
+**Step 5 (Lightbox Viewer)**:
+
+- `src/hooks/useLightbox.ts` - NEW - Lightbox state management
+- `src/hooks/useKeyboardNavigation.ts` - NEW - Keyboard controls
+- `src/components/gallery/Lightbox.tsx` - NEW - Full lightbox component
+- `src/app/(gallery)/gallery/page.tsx` - UPDATED - Lightbox integration
+
+**Configuration Updates**:
+
+- `.env.local` - UPDATED - Changed DATABASE_URL to use `postgres` database
+- `next.config.ts` - UPDATED - Added `images.unsplash.com` to remotePatterns
+
+**Infrastructure (on vps8)**:
+
+- Supabase .env - UPDATED - Resend SMTP configuration
+
 ## Key Decisions
 
 - **Work on `main`** during V0.1 (no branches until baseline is working)
 - **Understated UI** - clean, minimal, no visual clutter
 - **Local sample data first** - build with local files, add B2 integration later
-- **Date sorting not meaningful** - rely on keywords and semantic search
+- **Resend for email** - Reliable SMTP service for magic links
+- **Shared postgres database** - Required for self-hosted Supabase GoTrue
 
 ## Key Files
 
@@ -273,45 +216,15 @@ Created the complete Next.js 15 project with:
 [x] Step 2: Configure Supabase Client - COMPLETE
 [x] Step 3: Implement Magic Link Authentication - COMPLETE
 [x] Step 4: Build Gallery Grid Component - COMPLETE
-[ ] Step 5-12: Guided Setup - IN PROGRESS
+[x] Step 5: Add Lightbox Viewer - COMPLETE
+[ ] Step 6-12: Guided Setup - IN PROGRESS
 [ ] Phase 4: Test Strategy (test-orchestrator) - optional
 [ ] Phase 5: Deployment (deploy-guide)
 [ ] Phase 6: CI/CD (ci-cd-implement) - optional
 ```
 
-## Files Created in This Session
-
-**Step 2 (Supabase Clients)**:
-
-- `src/lib/supabase/client.ts` - Browser Supabase client
-- `src/lib/supabase/server.ts` - Server Supabase client
-- `src/lib/supabase/middleware.ts` - Session refresh middleware
-- `src/types/database.ts` - TypeScript database types
-- `docs/supabase-client-setup.md` - Comprehensive guide
-
-**Step 3 (Magic Link Auth)**:
-
-- `src/middleware.ts` - Route protection and token refresh
-- `src/app/(auth)/auth/callback/route.ts` - Magic link callback handler
-- `src/lib/auth/index.ts` - Auth utility functions
-- `src/components/auth/LoginForm.tsx` - Magic link form
-- `src/components/auth/UserProfile.tsx` - Profile display
-- `src/components/auth/SignOutButton.tsx` - Sign out button
-- `docs/magic-link-auth-guide.md` - Authentication guide
-
-**Step 4 (Gallery Grid)**:
-
-- `src/components/gallery/ImageCard.tsx` - Individual image card
-- `src/components/gallery/ImageGrid.tsx` - Responsive grid layout
-- `src/components/gallery/PaginationControls.tsx` - Pagination controls
-- `src/hooks/useGalleryPagination.ts` - Pagination state hook
-- `src/lib/gallery/placeholder.ts` - Development image generator
-- `src/app/(gallery)/gallery/page.tsx` - Gallery page (updated)
-- `src/types/index.ts` - Type definitions (updated)
-- `docs/gallery-grid-guide.md` - Gallery guide
-
-**Total**: 27 new files created + 3 updated
-
 ## Next Action
 
-User ready for: **Step 5 (Add Lightbox Viewer)** to view full-size images
+**Before Step 6:** Fix auth redirect by updating SITE_URL on vps8
+
+**Then:** Step 6 (Connect Backblaze B2 Storage) to display real images from B2

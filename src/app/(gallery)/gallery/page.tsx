@@ -20,10 +20,12 @@
 
 import { useState, useEffect } from 'react'
 import { ImageGrid } from '@/components/gallery/ImageGrid'
+import { Lightbox } from '@/components/gallery/Lightbox'
 import { PaginationControls } from '@/components/gallery/PaginationControls'
 import { useGalleryPagination } from '@/hooks/useGalleryPagination'
+import { useLightbox } from '@/hooks/useLightbox'
 import { getPlaceholderImages } from '@/lib/gallery/placeholder'
-import { ImageData } from '@/types'
+import type { ImageData } from '@/types'
 
 const ITEMS_PER_PAGE = 20
 
@@ -35,6 +37,12 @@ export default function GalleryPage() {
     itemsPerPage: ITEMS_PER_PAGE,
     totalItems: images.length,
   })
+
+  // Get current page of images
+  const visibleImages = images.slice(pagination.startIndex, pagination.endIndex)
+
+  // Lightbox state for visible images
+  const lightbox = useLightbox(visibleImages)
 
   // Load placeholder images on mount
   useEffect(() => {
@@ -60,8 +68,13 @@ export default function GalleryPage() {
     loadImages()
   }, [])
 
-  // Get current page of images
-  const visibleImages = images.slice(pagination.startIndex, pagination.endIndex)
+  // Handle image click - find index within visible images
+  const handleImageClick = (image: ImageData) => {
+    const index = visibleImages.findIndex((img) => img.id === image.id)
+    if (index !== -1) {
+      lightbox.open(image, index)
+    }
+  }
 
   return (
     <div>
@@ -71,10 +84,7 @@ export default function GalleryPage() {
       {/* Image grid */}
       <ImageGrid
         images={visibleImages}
-        onImageClick={(image) => {
-          // Future: Open lightbox
-          console.log('Clicked:', image.filename)
-        }}
+        onImageClick={handleImageClick}
         isLoading={isLoading}
       />
 
@@ -96,6 +106,19 @@ export default function GalleryPage() {
           <div className="text-sm text-gray-500">Loading gallery...</div>
         </div>
       )}
+
+      {/* Lightbox for full-size image viewing */}
+      <Lightbox
+        image={lightbox.currentImage}
+        isOpen={lightbox.isOpen}
+        onClose={lightbox.close}
+        onNext={lightbox.next}
+        onPrevious={lightbox.previous}
+        canGoNext={lightbox.canGoNext}
+        canGoPrevious={lightbox.canGoPrevious}
+        currentIndex={lightbox.currentIndex}
+        totalImages={visibleImages.length}
+      />
     </div>
   )
 }

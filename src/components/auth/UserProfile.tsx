@@ -10,7 +10,7 @@
  * Because it fetches data from the database, it's a Server Component (no 'use client').
  */
 
-import { getCurrentUser, getUserProfile, signOut } from '@/lib/auth'
+import { getCurrentUser, getUserProfile } from '@/lib/auth'
 import { SignOutButton } from './SignOutButton'
 
 export async function UserProfile() {

@@ -15,8 +15,7 @@
  */
 
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-next'
-import { Database } from '@/types/database'
+import { supabaseClient } from '@/lib/supabase/client'
 
 type SignInState = 'idle' | 'loading' | 'success' | 'error'
 
@@ -24,12 +23,10 @@ interface LoginFormProps {
   redirectUrl?: string
 }
 
-export function LoginForm({ redirectUrl = '/gallery' }: LoginFormProps) {
+export function LoginForm(): JSX.Element {
   const [email, setEmail] = useState('')
   const [state, setState] = useState<SignInState>('idle')
   const [error, setError] = useState<string | null>(null)
-
-  const supabase = createClientComponentClient<Database>()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -38,7 +35,7 @@ export function LoginForm({ redirectUrl = '/gallery' }: LoginFormProps) {
 
     try {
       // Send magic link to the user's email
-      const { error: signInError } = await supabase.auth.signInWithOtp({
+      const { error: signInError } = await supabaseClient.auth.signInWithOtp({
         email,
         options: {
           // After clicking the link, redirect to /auth/callback

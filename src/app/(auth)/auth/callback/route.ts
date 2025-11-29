@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 
 /**
  * Auth Callback Route

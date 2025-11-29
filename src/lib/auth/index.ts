@@ -10,7 +10,7 @@
 
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@supabase/ssr'
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 
 /**
  * Get the current user from a Server Component

@@ -14,7 +14,7 @@
  */
 
 import Image from 'next/image'
-import { ImageData } from '@/types'
+import type { ImageData } from '@/types'
 
 interface ImageCardProps {
   image: ImageData

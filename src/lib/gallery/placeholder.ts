@@ -7,7 +7,7 @@
  * Uses placeholder.com service for realistic-looking development images.
  */
 
-import { ImageData } from '@/types'
+import type { ImageData } from '@/types'
 
 /**
  * Sample image data with placeholder images

@@ -17,7 +17,7 @@
  * - Clean, understated aesthetic
  */
 
-import { ImageData } from '@/types'
+import type { ImageData } from '@/types'
 import { ImageCard } from './ImageCard'
 
 interface ImageGridProps {
