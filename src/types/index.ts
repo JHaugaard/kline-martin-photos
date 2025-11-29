@@ -16,6 +16,8 @@ export interface ImageData {
   keywords: string[]
   createdAt: string
   updatedAt: string
+  // Optional: image URL for display (from B2 or placeholder)
+  imageUrl?: string
 }
 
 /**
