@@ -1,0 +1,4 @@
+# Backblaze B2 client files placeholder
+# To be added in Step 6:
+# - client.ts (B2 client setup)
+# - signed-urls.ts (presigned URL generation)

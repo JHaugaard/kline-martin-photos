@@ -1,0 +1,5 @@
+# Shared components placeholder
+# Components used across multiple features:
+# - ErrorBoundary.tsx
+# - PageHeader.tsx
+# - EmptyState.tsx

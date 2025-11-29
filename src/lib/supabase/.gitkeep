@@ -1,0 +1,5 @@
+# Supabase client files placeholder
+# To be added in Step 2:
+# - client.ts (browser client)
+# - server.ts (server client)
+# - middleware.ts (session refresh)

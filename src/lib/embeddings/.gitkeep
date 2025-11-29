@@ -1,0 +1,4 @@
+# Embedding service client files placeholder
+# To be added in Step 9:
+# - client.ts (image embedding service)
+# - ollama.ts (text embeddings via Ollama)

@@ -2,37 +2,62 @@
 
 ## Current Status
 
-**Phase:** Project Foundation (Phase 3) - COMPLETE
+**Phase:** Guided Setup - Step 1 COMPLETE
 **Mode:** BALANCED
-**Next:** Step 1 of Guided Setup (Next.js initialization)
+**Next:** Step 2 (Configure Supabase Client)
 
 ## What We've Done This Session
 
-### Phase 3: Project Spinup (COMPLETE)
+### Step 1: Initialize Next.js Structure (COMPLETE)
 
-1. Invoked `project-spinup` skill with Guided Setup approach
-2. Created comprehensive CLAUDE.md with 12-step guided setup
-3. Created docker-compose.yml for local development (PostgreSQL + embedding service)
-4. Set up directory structure: src/, tests/, embedding-service/
-5. Created .env.example with all required environment variables
-6. Created .gitignore for Next.js + Python
-7. Updated README.md with project overview
-8. Created scripts/init-db.sql for database initialization with pgvector
-9. Created .docs/project-foundation-complete.md handoff marker
+Created the complete Next.js 15 project with:
 
-### Updates Made
+1. **Configuration Files**
+   - `package.json` - Next.js 15, React 19, Supabase client, AWS SDK, Tailwind v4, Vitest
+   - `tsconfig.json` - TypeScript strict mode, path alias `@/*`
+   - `next.config.ts` - Image optimization for B2, security headers, typed routes
+   - `postcss.config.js` - Tailwind CSS v4 with `@tailwindcss/postcss`
+   - `eslint.config.mjs` - ESLint 9 flat config with Next.js rules
+   - `.prettierrc` - No semicolons, single quotes, Tailwind plugin
 
-1. **Production domain:** Changed from `photos.haugaard.dev` to `kline-martin-photos.com`
-2. **Local sample data:** Documented 10 test images in `kline-martin-photos/` subdirectory
-3. **Git workflow:** Simplified to work on `main` during V0.1, branch later
-4. **Date sorting:** Noted as not meaningful (scanned images share similar dates)
+2. **App Router Structure** (`src/app/`)
+   - `layout.tsx` - Root layout with metadata
+   - `page.tsx` - Landing page (/)
+   - `(auth)/` - Route group for authentication
+     - `layout.tsx` - Centered auth layout
+     - `login/page.tsx` - Login page (/login)
+     - `auth/callback/route.ts` - Magic link callback
+   - `(gallery)/` - Route group for protected pages
+     - `layout.tsx` - Gallery layout with header
+     - `gallery/page.tsx` - Main gallery (/gallery)
+   - `share/[token]/page.tsx` - Dynamic share link route
+   - `api/health/route.ts` - Health check endpoint
 
-### Sample Data Available
+3. **Components** (`src/components/`)
+   - `ui/` - Button, Input, Spinner (base components)
+   - `gallery/` - Placeholder for gallery components
+   - `auth/` - Placeholder for auth components
+   - `admin/` - Placeholder for admin components
+   - `shared/` - Placeholder for shared components
 
-10 JPEGs + JSON metadata files in `kline-martin-photos/` subdirectory:
-- Rich metadata: keywords, dates, dimensions, SmugMug origins
-- Example keywords: `["Martin", "Portrait", "Jack"]`
-- Enables offline development without B2 API calls
+4. **Library** (`src/lib/`)
+   - `utils.ts` - `cn()` utility for Tailwind class merging
+   - `supabase/` - Placeholder for Supabase clients
+   - `b2/` - Placeholder for B2 client
+   - `embeddings/` - Placeholder for embedding service
+
+5. **Types** (`src/types/index.ts`)
+   - ImageData, SearchResult, ShareLink, UserProfile, ApiResponse
+
+6. **Styles** (`src/styles/globals.css`)
+   - Tailwind v4 with custom theme, animations, utilities
+
+### Verification
+
+- `npm install` - 686 packages installed
+- `npm run type-check` - Passes
+- `npm run dev` - Server starts at http://localhost:3000
+- `/api/health` - Returns JSON health check
 
 ## Two-VPS Architecture
 
@@ -69,28 +94,32 @@
 
 | File | Purpose |
 |------|---------|
-| CLAUDE.md | Comprehensive project context + 12-step guided setup |
-| docker-compose.yml | PostgreSQL + embedding service for local dev |
-| .env.example | Environment variable template |
-| .gitignore | Next.js + Python ignore patterns |
-| README.md | Project overview |
-| scripts/init-db.sql | Database schema with pgvector |
-| .docs/project-foundation-complete.md | Handoff marker |
+| `package.json` | Dependencies + npm scripts |
+| `tsconfig.json` | TypeScript strict mode config |
+| `next.config.ts` | Next.js configuration |
+| `postcss.config.js` | Tailwind CSS v4 PostCSS |
+| `eslint.config.mjs` | ESLint 9 config |
+| `.prettierrc` / `.prettierignore` | Prettier config |
+| `src/app/**` | App Router pages and layouts |
+| `src/components/ui/**` | Base UI components |
+| `src/lib/utils.ts` | Utility functions |
+| `src/types/index.ts` | TypeScript type definitions |
+| `src/styles/globals.css` | Global styles + Tailwind theme |
 
-## 12-Step Guided Setup (Ready to Start)
+## 12-Step Guided Setup Progress
 
-1. **Initialize Next.js Structure** ← NEXT
-2. Configure Supabase Client
-3. Implement Magic Link Authentication
-4. Build Gallery Grid Component
-5. Add Lightbox Viewer
-6. Connect Backblaze B2 Storage
-7. Implement Search Foundation
-8. Set Up Python Embedding Service
-9. Add Semantic Search
-10. Implement Share Links
-11. Add Admin Keyword Management
-12. Testing Setup
+1. [x] **Initialize Next.js Structure** - COMPLETE
+2. [ ] **Configure Supabase Client** <- NEXT
+3. [ ] Implement Magic Link Authentication
+4. [ ] Build Gallery Grid Component
+5. [ ] Add Lightbox Viewer
+6. [ ] Connect Backblaze B2 Storage
+7. [ ] Implement Search Foundation
+8. [ ] Set Up Python Embedding Service
+9. [ ] Add Semantic Search
+10. [ ] Implement Share Links
+11. [ ] Add Admin Keyword Management
+12. [ ] Testing Setup
 
 ## Key Decisions
 
@@ -106,7 +135,6 @@
 - [.docs/brief-kline-martin-photos.md](../.docs/brief-kline-martin-photos.md) - Project brief
 - [.docs/tech-stack-decision-v2.md](../.docs/tech-stack-decision-v2.md) - Tech stack decision
 - [.docs/deployment-strategy.md](../.docs/deployment-strategy.md) - Deployment strategy
-- [.docs/project-foundation-complete.md](../.docs/project-foundation-complete.md) - Phase 3 handoff
 
 ## Workflow Progress
 
@@ -115,7 +143,8 @@
 [x] Phase 1: Tech Stack Advisor (complete)
 [x] Phase 2: Deployment Strategy (complete)
 [x] Phase 3: Project Foundation (project-spinup) - COMPLETE
-[ ] Step 1-12: Guided Setup <- READY TO START
+[x] Step 1: Initialize Next.js Structure - COMPLETE
+[ ] Step 2-12: Guided Setup - IN PROGRESS
 [ ] Phase 4: Test Strategy (test-orchestrator) - optional
 [ ] Phase 5: Deployment (deploy-guide)
 [ ] Phase 6: CI/CD (ci-cd-implement) - optional
@@ -123,4 +152,4 @@
 
 ## Next Action
 
-User says: **"Let's start Step 1"** to initialize Next.js structure
+User says: **"Let's start Step 2"** to configure Supabase client
