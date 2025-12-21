@@ -135,12 +135,12 @@ The gallery serves as a searchable, browsable interface to a curated photo colle
 
 ### Constraints
 - **User base**: ~20 invited family members
-- **Image count**: ~1,100 images (fixed collection for V1)
-- **Storage**: Images stored in Backblaze B2
+- **Image count**:  1,063 images (fixed collection for V1)
+- **Storage**: 
 - **Existing assets**: 10 prototype images with JSON metadata files already in B2
 
 ### Assumptions
-- All ~1,100 images will have keyword metadata (either pre-existing or to be added)
+- All 1,063 images will have keyword metadata (either pre-existing or to be added)
 - Users have email addresses for magic link authentication
 - Most users will access via modern browsers (Chrome, Safari, Firefox, Edge)
 - Mobile access is important but desktop is primary

@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(project-brief-writer)",
+      "Skill(tech-stack-advisor)",
+      "Skill(deployment-advisor)",
+      "Skill(project-spinup)",
+      "Bash(pnpm install:*)",
+      "Bash(npm install)",
+      "Bash(npm run type-check:*)",
+      "Bash(timeout 15 npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(pnpm --version:*)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm type-check:*)",
+      "Bash(curl:*)",
+      "Bash(timeout 10 pnpm dev:*)",
+      "Bash(PGPASSWORD=Qe4t8GmfAJDKuT8Xj0XqCHHwjkkJxYe2 psql:*)",
+      "Bash(ls:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "disabledMcpjsonServers": [
+    "zen"
+  ]
+}
